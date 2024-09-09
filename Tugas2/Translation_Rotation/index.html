@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas F Letter with Sliders and Rotation</title>
+    <style>
+        body {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        #canvas-container {
+            position: relative;
+        }
+
+        #sliders {
+            margin-left: 20px;
+        }
+
+        canvas {
+            border: 1px solid lightgray;
+        }
+
+        .slider {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="f-canvas" width="400" height="400"></canvas>
+    </div>
+
+    <div id="sliders">
+        <div class="slider">
+            <label for="x-slider">X: <span id="x-val">0</span></label><br>
+            <input type="range" id="x-slider" min="-100" max="200" value="0">
+        </div>
+        <div class="slider">
+            <label for="y-slider">Y: <span id="y-val">0</span></label><br>
+            <input type="range" id="y-slider" min="-100" max="200" value="0">
+        </div>
+        <div class="slider">
+            <label for="rotation-slider">Rotation: <span id="rotation-val">0</span>°</label><br>
+            <input type="range" id="rotation-slider" min="0" max="360" value="0">
+        </div>
+        <canvas id="circle-canvas" width="200" height="200"></canvas>
+    </div>
+
+    <script>
+        const fCanvas = document.getElementById('f-canvas');
+        const fCtx = fCanvas.getContext('2d');
+
+        const circleCanvas = document.getElementById('circle-canvas');
+        const circleCtx = circleCanvas.getContext('2d');
+
+        const xSlider = document.getElementById('x-slider');
+        const ySlider = document.getElementById('y-slider');
+        const rotationSlider = document.getElementById('rotation-slider');
+        const xValSpan = document.getElementById('x-val');
+        const yValSpan = document.getElementById('y-val');
+        const rotationValSpan = document.getElementById('rotation-val');
+
+        function drawF(x, y, angle) {
+            fCtx.clearRect(0, 0, fCanvas.width, fCanvas.height);
+            fCtx.save(); // Save the current canvas state
+            
+            // Move origin to the position where we want to draw 'F'
+            fCtx.translate(x, y);
+            
+            // Rotate canvas by the given angle in radians
+            fCtx.rotate(angle);
+            
+            // Draw the 'F' with the new rotation and position
+            fCtx.fillStyle = 'limegreen';
+            fCtx.font = 'bold 120px Arial';
+            fCtx.fillText('F', -30, 40); // Adjust text to be centered on the origin
+
+            fCtx.restore(); // Restore the canvas state (remove rotation and translation)
+        }
+
+        function drawCircle(x, y) {
+            circleCtx.clearRect(0, 0, circleCanvas.width, circleCanvas.height);
+
+            // Draw circle
+            circleCtx.strokeStyle = 'blue';
+            circleCtx.beginPath();
+            circleCtx.arc(100, 100, 90, 0, Math.PI * 2);
+            circleCtx.stroke();
+
+            // Draw crosshairs
+            circleCtx.strokeStyle = 'gray';
+            circleCtx.beginPath();
+            circleCtx.moveTo(100, 10);
+            circleCtx.lineTo(100, 190);
+            circleCtx.stroke();
+            circleCtx.beginPath();
+            circleCtx.moveTo(10, 100);
+            circleCtx.lineTo(190, 100);
+            circleCtx.stroke();
+
+            // Draw point at (x, y)
+            const xCoord = 100 + x * 90;
+            const yCoord = 100 - y * 90;
+            circleCtx.fillStyle = 'black';
+            circleCtx.beginPath();
+            circleCtx.arc(xCoord, yCoord, 5, 0, Math.PI * 2);
+            circleCtx.fill();
+
+            // Draw arrows for X and Y coordinates
+            circleCtx.fillStyle = 'black';
+            circleCtx.fillText(`X=${x.toFixed(2)}`, xCoord + 10, yCoord + 15);
+            circleCtx.fillText(`Y=${y.toFixed(2)}`, xCoord + 10, yCoord - 10);
+        }
+
+        function update() {
+            const x = xSlider.valueAsNumber;
+            const y = ySlider.valueAsNumber;
+            const rotation = rotationSlider.valueAsNumber;
+
+            xValSpan.textContent = x;
+            yValSpan.textContent = y;
+            rotationValSpan.textContent = rotation;
+
+            const normX = (x - 100) / 100;
+            const normY = (y - 100) / 100;
+            const angleInRadians = (rotation * Math.PI) / 180; // Convert angle to radians
+
+            drawF(x, y + 150, angleInRadians);
+            drawCircle(normX, normY);
+        }
+
+        xSlider.addEventListener('input', update);
+        ySlider.addEventListener('input', update);
+        rotationSlider.addEventListener('input', update);
+
+        // Initial render
+        update();
+    </script>
+</body>
+</html>

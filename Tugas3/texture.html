@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>texture</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    let scene, camera, renderer, cube;
+
+    function init() {
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 3;
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load('Tugas3/WhatsApp Image 2024-08-30 at 19.39.00_508480a6.jpg'); 
+
+        const materials = [
+            new THREE.MeshBasicMaterial({ map: texture }), 
+            new THREE.MeshBasicMaterial({ map: texture }), 
+            new THREE.MeshBasicMaterial({ map: texture }), 
+            new THREE.MeshBasicMaterial({ map: texture }), 
+            new THREE.MeshBasicMaterial({ map: texture }), 
+            new THREE.MeshBasicMaterial({ map: texture }), 
+        ];
+
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        cube = new THREE.Mesh(geometry, materials);
+        scene.add(cube);
+
+        renderer.render(scene, camera);
+
+        animate();
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+
+    init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lathe</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .controls label {
+            display: block;
+            margin-top: 5px;
+        }
+        .controls input {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <label>Distance: <input type="range" id="distanceRange" min="0.1" max="2" step="0.01" value="1"></label>
+    <label>Divisions: <input type="range" id="divisionsRange" min="4" max="32" step="1" value="16"></label>
+    <label>Start Angle: <input type="range" id="startAngleRange" min="0" max="360" step="1" value="0"></label>
+    <label>End Angle: <input type="range" id="endAngleRange" min="0" max="360" step="1" value="360"></label>
+    <label>Cap Start: <input type="checkbox" id="capStart" checked></label>
+    <label>Cap End: <input type="checkbox" id="capEnd" checked></label>
+    <label>Triangles: <input type="checkbox" id="triangles"></label>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    let geometry, wireframe;
+    const material = new THREE.MeshBasicMaterial({ wireframe: true, color: 0x00ff00 });
+
+    function createGeometry() {
+        if (wireframe) scene.remove(wireframe);
+
+        const distance = parseFloat(document.getElementById('distanceRange').value);
+        const divisions = parseInt(document.getElementById('divisionsRange').value);
+        const startAngle = THREE.Math.degToRad(parseInt(document.getElementById('startAngleRange').value));
+        const endAngle = THREE.Math.degToRad(parseInt(document.getElementById('endAngleRange').value));
+        const capStart = document.getElementById('capStart').checked;
+        const capEnd = document.getElementById('capEnd').checked;
+        const useTriangles = document.getElementById('triangles').checked;
+
+        const points = [];
+        for (let i = 0; i < divisions; i++) {
+            points.push(new THREE.Vector2(Math.sin(i * 0.1) * distance, (i - divisions / 2) * 0.1));
+        }
+        
+        geometry = new THREE.LatheGeometry(points, divisions, startAngle, endAngle);
+
+        if (useTriangles) {
+            const materialTriangles = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: false });
+            wireframe = new THREE.Mesh(geometry, materialTriangles);
+        } else {
+            wireframe = new THREE.Mesh(geometry, material);
+        }
+
+        scene.add(wireframe);
+        renderer.render(scene, camera); 
+    }
+
+    createGeometry();
+
+    document.querySelectorAll('.controls input').forEach(input => {
+        input.addEventListener('input', createGeometry);
+    });
+
+    camera.position.z = 5;
+
+    window.addEventListener('resize', function () {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+</script>
+
+</body>
+</html>
